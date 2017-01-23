@@ -1,0 +1,138 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+   <section>
+       <div class="container">
+       	<div class="row">&nbsp;</div>
+       	<div class="row">
+       		<div class="btn-group pull-right" role="group" aria-label="...">
+			<a href="{{ path('cow_create') }}" class="btn btn-default">Nova Vaca</a>
+		</div>
+       	</div>
+	<div class="row">
+		<div class="table-responsive">
+			<table class="table table-hover table-striped" id="cow-table">
+
+			</table>
+		</div>
+	</div>
+       </div>
+   </section>
+{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/style.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ asset('css/datatables.min.css') }}"/>
+<link rel="stylesheet" type="text/css" href="{{ asset('css/jquery-confirm.css') }}"/>
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript" src="{{ asset('js/jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/datatables.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/autoNumeric.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/jquery-confirm.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/script.js') }}"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#cow-table').DataTable( {
+			"aaData": {{ cows | json_encode | raw }},
+			"columns": [
+				{ "data" : "id",			"title" : "#", "sClass":"hidden", "orderable": true, "searchable": true },
+				{ "data" : "weight",		"title" : "Peso", "orderable": true, "searchable": true},
+				{ "data" : "age",		"title" : "Idade", "orderable": true, "searchable": true },
+				{ "data" : "price",		"title" : "Preço", "orderable": true, "searchable": true },
+				{ "data" : "annual_cost",	"title" : "Custo Anual", "orderable": true, "searchable": true},
+				{ "data" : "id",			"title" : "", "orderable": false, "searchable": false },
+			],
+			"columnDefs": [
+				{
+					"render": function ( data, type, row ) {
+						var bt = '<span class="real">'+data+'</span>';
+
+						return bt;
+					},
+					"targets": 3
+				},
+				{
+					"render": function ( data, type, row ) {
+						var bt = '<span class="inteiro">'+data+'</span> KG';
+
+						return bt;
+					},
+					"targets": 1
+				},
+				{
+					"render": function ( data, type, row ) {
+						var bt = '<span class="decimal2">'+row.pasto_ano+'</span> KG / <span class="real">'+data+'</span>';
+
+						return bt;
+					},
+					"targets": 4
+				},
+				{
+					"render": function ( data, type, row ) {
+						var bt = '<div class="btn-group" role="group" aria-label="...">';
+
+						bt += '<a class="btn btn-sm btn-default" href="./vaca/'+data+'/edit" title="Editar">';
+						bt += '<span class="fa fa-edit"></span> EDITAR';
+						bt += '</a>';
+						bt += '&nbsp;';
+
+						bt += '<a class="btn btn-sm btn-danger" data-method="delete" href="./vaca/'+data+'/delete">';
+						bt += '<span class="fa fa-trash"></span> EXCLUIR';
+						bt += '</a>';
+
+						bt += '</div>';
+
+						return bt;
+					},
+					"targets": 5
+				}
+			],
+			'initComplete': function () {
+				formataNumeros();
+			},
+			'drawCallback': function () {
+				formataNumeros();	
+			},
+			"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+				var rClass = "";
+
+				if ( aData.id == {{ id_vaca_menor_custo }} ){
+					$(nRow).addClass( 'txtVerde' );
+				}
+
+				return nRow;
+			}
+		});
+
+		 $('body').on('click', 'a[data-method="delete"]', function(e) {
+		 	e.preventDefault();
+        			e.stopPropagation();
+
+        			var a = $(this);
+
+			$.confirm({
+				theme: 'hololight',
+				title: 'Confirmar ação!',
+				content: '<b>Essa ação não poderá ser desfeita após a confirmação.</b> Tem certeza que deseja excluir esta informação?',
+				confirmButton: 'Sim, tenho certeza!',
+				cancelButton: 'Não',
+				confirmButtonClass: 'btn-danger',
+				cancelButtonClass: 'btn-default',
+				backgroundDismiss: false,
+				confirmKeys: [13], // ENTER key
+				cancelKeys: [27], // ESC key
+				confirm: function() {
+					$(location).attr('href',$(a).attr('href'));
+					return true;
+				},
+				cancel: function() {
+					return true;
+				}
+			});
+		})
+	});
+</script>
+{% endblock %}

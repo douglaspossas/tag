@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+   <section>
+       <div class="container">
+       	<h6 class="text-center">Antes de Tudo, precisamos de algumas informações</h6>
+	<div class="row">
+		{{ form_start(form) }}
+		{{ form_widget(form, {
+			'attr': {
+				'style' : 'width: 300px; margin: 0 auto;'
+			}
+		}) }}
+		{{ form_end(form) }}
+	</div>
+       </div>
+   </section>
+{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/style.css') }}" />
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript" src="{{ asset('js/jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/datatables.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/autoNumeric.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/jquery-confirm.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/jquery.validate.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/script.js') }}"></script>
+<script type="text/javascript">
+	$(function(){
+		var lbls = $('form').find('label');
+		$(lbls).each(function(i,l){
+			var id = $(l).attr('for');
+			$(l).hide();
+
+			$('[id="'+id+'"]').attr('placeholder',$(l).text());
+		});
+
+		$('#form-cow').validate();
+
+		formataNumeros();
+	});
+</script>
+{% endblock %}
